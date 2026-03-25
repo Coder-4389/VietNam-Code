@@ -17,9 +17,9 @@ class Shell():
         self.main = ctk.CTk()
         self.main.geometry(f'{width}x{height}')
         self.main.title(title)
-        self.main.iconbitmap("_script/resources/vn_shell.ico")
+        self.main.iconbitmap("resources/vn_shell.ico")
 
-        # --- Textbox ---
+        # --- Textbox --- #
         self.prompt = ctk.CTkTextbox(self.main, fg_color="#000000", text_color="#0FC4C7")
 
         self.prompt.pack(expand=True, fill="both", padx=10, pady=10)
@@ -48,13 +48,11 @@ class Shell():
 
 class Script():
     def __init__(self):
-      pass
+        pass
 
     def paser(self, cmd):
-      cmd = cmd.strip().split()
-
-
-      pass
+        cmd = cmd.strip().split()
+        pass
     
     def run(self):
         pass

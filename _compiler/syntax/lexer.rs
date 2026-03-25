@@ -23,7 +23,7 @@ pub enum Tk {
     Exec    = 19,
     Tvar    = 20,
     Var     = 21,
-    Impl    = 22, 
+	incl    = 22, 
 
     // --- Symbols Single (30 - 69) ---
     L4      = 30, R4 = 31,    // < >
@@ -116,7 +116,7 @@ impl Lexer {
             "def"                   => Tk::Def,
             "class"                 => Tk::Class,
             "template"              => Tk::Temp,
-            "import"                => Tk::Impl,
+            "include"               => Tk::Incl,
 
             // --- Symbols Single ---
             "<"  => Tk::L4,        ">"  => Tk::R4,
@@ -320,13 +320,13 @@ impl Lexer {
             self.pos.upd(_char);
         }
 
-        // for tok in self.raw_toks.clone() {
-        //     if tok == "\\n" {
-        //         println!();
-        //         continue;
-        //     }
-        //     print!(" {} ", tok);
-        // }
+			// for tok in self.raw_toks.clone() {
+			//     if tok == "\\n" {
+			//         println!();
+			//         continue;
+			//     }
+			//     print!(" {} ", tok);
+			// }
     }
 
     pub fn make_token(&mut self) {

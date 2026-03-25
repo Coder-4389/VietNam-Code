@@ -2,6 +2,8 @@
 use std::fs;
 use std::io::{self, Write};
 use std::ffi::c_char;
+use std::env;
+use std::path::Path;
 
 pub mod untils;
 pub mod opcode;
@@ -16,15 +18,6 @@ struct Core {
     source  :    String,
 }
 
-// --- until --- //
-fn input(msg: &str) -> String {
-    println!("{}", msg);
-    let mut input = String::new();
-    io::stdout().flush().unwrap();
-    io::stdin().read_line(&mut input);
-    input.trim().to_string()
-}
-
 impl Core {
     fn new(path: String) -> Core {
         Core {
@@ -33,15 +26,7 @@ impl Core {
         }
     }
 
-    fn load_cdx(&mut self) {
-        if !self.path.ends_with(".vnc") {
-            println!("This file is not vnc format. You want to run this file. \n");
-            let des = input(" Y|N : Yes|No").to_lowercase();
-            if des == "n" || des == "no" { 
-                return;
-            }
-        }
-
+    fn load_cdx(&mut self, path: String) {
         match fs::read_to_string(&self.path) {
             Ok(source) => {
                 self.source = source;
@@ -63,7 +48,17 @@ impl Core {
 
 fn main() {
     let mut _core = Core::new(String::new());
-    _core.run();
     let mut lexer = Lexer::new(_core.source.clone());
+	
+	let arg: Vec<String> = env::arg().collect();
+	
+	if arg[0] != "vnc" {return;}
+	if arg[1] != "run" {return;}
+	
+	if len(arg) < 3 {return;}
+	
+	let path = arg[2];
+    _core.run(path);
+	
     lexer.make_token();
 }

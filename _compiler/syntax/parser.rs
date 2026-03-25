@@ -51,8 +51,18 @@ impl Paser {
     // *********************************************************************
     // --- define functions ---
     // *********************************************************************
-    pub fn is_impl(&mut self) {
-
+    pub fn is_incl(&mut self) {
+		self.consume(Tk::incl);
+		
+		if !self.peek().kind == Tk::DQuote {return;}
+		self.consume(Tk::DQuote);
+		
+		let path = self.peek().value;
+		if !Path::new(path).exists() {return;}
+		self.consume(Tk::String);
+		
+		if !self.peek().kind == Tk::DQuote {return;}
+		self.consume(Tk::DQuote);
     }
 
     pub fn is_def(&mut self) {
@@ -74,17 +84,14 @@ impl Paser {
 
             match kind {
                 Tk::Id => {
-                    self.id_checker();
+                    self.id_check();
                     self.consume(Tk::Id);
                 },
-                Tk::Comma => {
-                    self.consume(Tk::Comma);
-                },
+				
+                Tk::Comma => {self.consume(Tk::Comma);},
                 _ => break,
             }
-        }
-
-        self.consume(Tk::R1);
+        } self.consume(Tk::R1);
 
         self.kw_def.insert(name);
     }
@@ -111,7 +118,7 @@ impl Paser {
     // *********************************************************************
     // --- checker functions ---
     // *********************************************************************
-    pub fn id_checker(&mut self) -> bool {
+    pub fn id_check(&mut self) -> bool {
         if self.is_end() { return false; }
         let kind = self.peek().kind;
         let val = &self.curr().value;
