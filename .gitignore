@@ -1,0 +1,7 @@
+_compiler/target/
+/.git
+_script/__pycache__/
+.vscode
+
+*.exe
+

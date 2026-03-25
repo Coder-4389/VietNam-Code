@@ -1,0 +1,19 @@
+{
+
+    "settings": {
+        "app_path": "",
+        "theme": "dark",
+        "color_theme": "blue",
+        "font_size": 14,
+        "language": "vi"
+    },
+    "compiler_settings": {
+        "path": "bin/vnc_lexer.exe",
+        "auto_build": true,
+        "show_debug": false
+    },
+    "history": {
+        "recent_projects": [],
+        "last_opened_prj": ""
+    }
+}
