@@ -1,6 +1,6 @@
-#include<iostream>
-#include<string>
-
+#include <string>
+#include <vector>
+#include <map>
 
 using namespace std;
 
@@ -13,7 +13,6 @@ t1 print(t1 text, t2 end = "\n") {
 template<typename t1>
 t1 input(t1 text = "") {
     string input;
-    cout << text;
-    cin >> input;
+	cout << text; cin >> input;
     return input;
 }

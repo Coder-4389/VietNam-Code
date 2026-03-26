@@ -26,7 +26,7 @@ impl Core {
         }
     }
 
-    fn load_cdx(&mut self, path: String) {
+    fn load_cdx(&mut self) {
         match fs::read_to_string(&self.path) {
             Ok(source) => {
                 self.source = source;
@@ -50,15 +50,16 @@ fn main() {
     let mut _core = Core::new(String::new());
     let mut lexer = Lexer::new(_core.source.clone());
 	
-	let arg: Vec<String> = env::arg().collect();
+	let args: Vec<String> = env::arg().collect();
 	
 	if arg[0] != "vnc" {return;}
 	if arg[1] != "run" {return;}
 	
-	if len(arg) < 3 {return;}
+	if arg.len() < 3 {return;}
 	
-	let path = arg[2];
-    _core.run(path);
+	self.path = arg[2];
+    _core.run();
 	
     lexer.make_token();
+	lexer.run
 }

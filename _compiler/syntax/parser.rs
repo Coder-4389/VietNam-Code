@@ -101,7 +101,7 @@ impl Paser {
     }
 
     pub fn is_asg(&mut self) {
-
+		self.consume(Tk::Tvar)
     }
 
     // *********************************************************************
@@ -141,7 +141,7 @@ impl Paser {
                 true
             },
             Tk::Comma if self.kw_var.contains(&val)         => {
-                self.kind_upd(self.idx, Tk::Var);
+                self.kind_upd(self.idx, Tk::Var;
                 true
             },
 
