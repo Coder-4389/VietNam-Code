@@ -24,7 +24,7 @@ using opl = optional<t1>;
 
 constexpr auto null = nullopt;
 
-class ios {
+class vnios {
 	public:
 	inline opl<bool> print(auto text, auto end = "\n") {
 		if (cout << text << end) {return true;}
@@ -40,7 +40,10 @@ class ios {
 }
 
 extern "C" {
-	
+	opl<bool> ios_init() {
+		if (vn_ios ios;) {return true}
+		return null;
+	}
 }
 
 inline opl<size_t> len(auto object) {
