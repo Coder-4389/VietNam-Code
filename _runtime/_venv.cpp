@@ -1,8 +1,4 @@
-#include <iostream>
-#include <string>
-#include <cstdlib>
-
-#include "kernel.hpp"
+#include "global.hpp"
 
 using namespace std;
 

@@ -1,28 +1,12 @@
-#ifndef KERNEL_HPP
-#define KERNEL_HPP
+#ifndef Kernel
+#define Kernel
 
 // ****************************************
 // --- start of code ---
 // ****************************************
 
-// --- object lib ---
-#include <string>
-#include <vector>
-#include <map>
-#include <optional>
-
-// --- int lib ---
-#include <cstdint>
-
-// --- exec lib ---
-#include <iostream>
-
-using namespace std;
-
-template <typename t1>
-using opl = optional<t1>;
-
-constexpr auto null = nullopt;
+#include "global.hpp"
+#include "untils.hpp"
 
 class vnios {
 	public:
@@ -47,19 +31,21 @@ class vnmet {
 	} 
 };
 
-struct vstd {
+struct vnstd {
 	vnios ios;
 	vnmet met;
 };
 
+vnstd vst;
+
 extern "C" {
 	opl<bool> ios_init() {
-		if (&vstd::ios != nullptr) {return true;}
+		if (&vst.ios != nullptr) {return true;}
 		return null;
 	}
 	
 	opl<bool> met_init() {
-		if (&vstd::met != nullptr) {return true;}
+		if (&vst.met != nullptr) {return true;}
 		return null;
 	}
 }
@@ -67,4 +53,5 @@ extern "C" {
 // ****************************************
 // --- end of code ---
 // ****************************************
+
 #endif
