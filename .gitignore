@@ -22,4 +22,6 @@ NppGtags.cfg
 # --- Hệ thống ---
 .git/
 .DS_Store
+.gitignore
 Thumbs.db
+commit.ps1

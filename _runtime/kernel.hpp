@@ -32,24 +32,36 @@ class vnios {
 	}
 
 	inline opl<string> input(auto text = "") {
-		string in_text;
-		if (!print(text,"")) {return null;} 
-		if (!cin >> in_text) {return null;} 
+		print(text,""); string in_text;
+		if (cin >> in_text) {return in_text;} 
 		return in_text;
 	}
-}
+};
+
+class vnmet {
+	public:
+	opl<size_t> len(auto obj) {
+		size_t cnt;
+		if (cnt = obj.len()) {return cnt;}
+		return null;
+	} 
+};
+
+struct vstd {
+	vnios ios;
+	vnmet met;
+};
 
 extern "C" {
 	opl<bool> ios_init() {
-		if (vn_ios ios;) {return true}
+		if (&vstd::ios != nullptr) {return true;}
 		return null;
 	}
-}
-
-inline opl<size_t> len(auto object) {
-	size_t cnt = object.len();
-	if (cnt >= 0) {return cnt;}
-	return null
+	
+	opl<bool> met_init() {
+		if (&vstd::met != nullptr) {return true;}
+		return null;
+	}
 }
 
 // ****************************************

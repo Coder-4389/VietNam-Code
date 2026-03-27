@@ -2,19 +2,21 @@
 #include <string>
 #include <cstdlib>
 
-#include  "kernel.hpp"
+#include "kernel.hpp"
 
 using namespace std;
 
-extern "C" {
-	class runtime {
-		void exec_std(int id_cdx = 0x00) {
-			
-		}
+class runtime {
+	public:
+	void exec_std(int id_cdx = 0x00) {
+		
 	}
-}
+};
+
+extern "C" {}
 
 int main() {
-    run();
+	runtime env;
+    env.exec_std(0x00);
     return 0;
 }
