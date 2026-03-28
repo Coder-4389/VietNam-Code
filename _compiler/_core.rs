@@ -40,8 +40,6 @@ impl Core {
     }
 
     fn run(&mut self) {
-        let path = input("Enter the file path: ");
-        self.path = path;
         self.load_cdx();
     }
 }
@@ -50,16 +48,14 @@ fn main() {
     let mut _core = Core::new(String::new());
     let mut lexer = Lexer::new(_core.source.clone());
 	
-	let args: Vec<String> = env::arg().collect();
+	let args: Vec<String> = env::args().collect();
 	
-	if arg[0] != "vnc" {return;}
-	if arg[1] != "run" {return;}
+	if args[0] != "vnc" {return;}
+	if args[1] != "run" {return;}
+	if args.len() < 3 {return;}
 	
-	if arg.len() < 3 {return;}
-	
-	self.path = arg[2];
+	_core.path = args[2].clone();
     _core.run();
 	
     lexer.make_token();
-	lexer.run
 }

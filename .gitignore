@@ -1,27 +1,14 @@
-# --- Các thư mục biên dịch và thực thi ---
 _compiler/target/
-_runtime/*.exe
 *.exe
 *.log
 
-# --- Python (Dành cho script quản lý) ---
 __pycache__/
 _script/__pycache__/
 *.py[cod]
 
-# --- Notepad++ & NppGTags (Dữ liệu cục bộ) ---
-GPATH
-GRTAGS
-GTAGS
-NppGtags.cfg
 
-# --- Công cụ lập trình (VS Code, v.v.) ---
 .vscode/
-.idea/
 
-# --- Hệ thống ---
 .git/
-.DS_Store
 .gitignore
-Thumbs.db
 commit.ps1

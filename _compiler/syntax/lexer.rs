@@ -9,6 +9,9 @@ pub enum Tk {
     Id       = 0, 
     Number   = 1, 
     String   = 2, 
+    True     = 3,
+    False    = 4,
+    None     = 5
 
     // --- Keywords (10 - 29) ---
     Block    = 10,                          // if, elif, else 
