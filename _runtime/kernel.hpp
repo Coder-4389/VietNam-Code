@@ -1,5 +1,5 @@
-#ifndef Kernel
-#define Kernel
+#ifndef Kernel_Hpp
+#define Kernel_Hpp
 
 // ****************************************
 // --- start of code ---

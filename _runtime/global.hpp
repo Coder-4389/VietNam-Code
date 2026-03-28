@@ -1,5 +1,5 @@
-#ifndef Global
-#define Global
+#ifndef Global_Hpp
+#define Global_Hpp
 
 // ****************************************
 // --- start of code ---

@@ -1,6 +1,6 @@
 #include "global.hpp"
-
-using namespace std;
+#include "kernel.hpp"
+#include "untils.hpp"
 
 class runtime {
 	public:
