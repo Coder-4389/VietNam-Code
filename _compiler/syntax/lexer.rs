@@ -6,59 +6,66 @@ use crate::_init::*;
 #[derive(Debug, Clone, Copy)]
 pub enum Tk {
     // --- Data (0 - 9) ---
-    Id   = 0,
-    Number   = 1,
-    String  = 2,
+    Id       = 0, 
+    Number   = 1, 
+    String   = 2, 
 
     // --- Keywords (10 - 29) ---
-    Block   = 10,  // if, elif, else
-    Loop    = 11,  // for, while
-    Struct  = 12,
-    Def     = 13,
-    Class   = 14,
-    Temp    = 15,
-    Lib     = 16,
-    Pick    = 17,
-    Call    = 18,
-    Exec    = 19,
-    Tvar    = 20,
-    Var     = 21,
-	incl    = 22, 
+    Block    = 10,                          // if, elif, else 
+    Loop     = 11,                          // for, while 
+    Struct   = 12,                          // struct
+    Def      = 13,                          // def
+    Class    = 14,                          // class
+    Temp     = 15,                          // template
+    Lib      = 16, 
+    Pick     = 17, 
+    Call     = 18, 
+    Exec     = 19, 
+    Tvar     = 20,
+    Var      = 21,
+    Incl     = 22,
 
     // --- Symbols Single (30 - 69) ---
-    L4      = 30, R4 = 31,    // < >
-    L3      = 32, R3 = 33,    // { }
-    L2      = 34, R2 = 35,    // [ ]
-    L1      = 36, R1 = 37,    // ( )
-    Comma   = 38, Dot = 39, Semi = 40,
-    Colon   = 41, Quest = 42,
-    At      = 43, Hash = 44, Dol = 45,
-    Amp     = 46, Pipe = 47,
+    L4       = 30, R4 = 31,                 // < > 
+    L3       = 32, R3 = 33,                 // { } 
+    L2       = 34, R2 = 35,                 // [ ]  
+    L1       = 36, R1 = 37,                 // ( ) 
+    Comma    = 38,                          // , 
+    Dot      = 39,                          // . 
+    Semi     = 40,                          // ; 
+    Colon    = 41,                          // : 
+    Quest    = 42,                          // ? 
+    At       = 43,                          // @ 
+    Hash     = 44,                          // #
+    Dol      = 45,                          // $ 
+    Amp      = 46,                          // & 
+    Pipe     = 47,                          // | 
     
-    Add     = 48, Sub = 49, Mul = 50, Div = 51, Mod = 52,
-    Asg     = 53, // =
-    Not     = 54, // !
-    SQuote  = 55, DQuote = 56,
+    Add      = 48, Sub = 49, Mul = 50, Div = 51, Mod = 52, // + - * / % 
+    Asg      = 53,                          // = 
+    Not      = 54,                          // ! 
+    SQuote   = 55,                          // ' 
+    DQuote   = 56,                          // " 
 
     // --- Symbols Double (70 - 110) ---
-    Eq      = 70, Neq = 71,   // == !=
-    Lte     = 72, Gte = 73,   // <= >=
-    And     = 74, Or  = 75,   // && ||
-    Inc     = 76, Dec = 77,   // ++ --
-    Pow     = 78,             // **
-    FloDiv  = 79,             // //
-    LShf    = 80, RShf = 81,  // << >>
-    Scop    = 82,             // ::
-    ArwL    = 83, ArwR = 84,  // <- ->
+    Eq       = 70, Neq = 71,                // == != 
+    Lte      = 72, Gte = 73,                // <= >= 
+    And      = 74, Or  = 75,                // && || 
+    Inc      = 76, Dec = 77,                // ++ -- 
+    Pow      = 78,                          // ** 
+    FloDiv   = 79,                          // // 
+    LShf     = 80, RShf = 81,               // << >> 
+    Scop     = 82,                          // :: 
+    ArwL     = 83, ArwR = 84,               // <- -> 
     
     // --- Assignment Operators (120 - 150) ---
-    Ag_Ad   = 120, Ag_Sb = 121, // += -=
-    Ag_Ml   = 122, Ag_Dv = 123, // *= /=
-    Ag_Md   = 124, Ag_Pw = 125, // %= **=
-    Ag_Fd   = 126, Ag_Xor = 127, // //= ^=
-    Ag_And  = 128, Ag_Or = 129, // &= |=
+    Ag_Ad    = 120, Ag_Sb = 121,            // += -= 
+    Ag_Ml    = 122, Ag_Dv = 123,            // *= /=
+    Ag_Md    = 124, Ag_Pw = 125,            // %= **= 
+    Ag_Fd    = 126, Ag_Xor = 127,           // //= ^= 
+    Ag_And   = 128, Ag_Or = 129,            // &= |= 
 
-    Unknown = 255,
+    Unknown = 255, 
 }
 
 #[derive(Debug, Clone)]
