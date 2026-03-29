@@ -88,9 +88,11 @@ impl Paser {
         while !self.is_end() && self.curr().kind != Tk::R1 {
             match self.curr().kind {
                 Tk::Id => {
-                    self.iden_check(); 
-                    self.consume(Tk::Id);
+                    self.iden_check();
                 },
+                Tk::Tvar => {
+                    self.param_check();
+                }
                 Tk::Comma => {
                     self.consume(Tk::Comma);
                 },
@@ -106,20 +108,55 @@ impl Paser {
     }
 
     pub fn is_class(&mut self) {
+        self.consume(Tk::Class);
 
-    }
+        let mut name = String::new();
+
+        if self.curr().kind == Tk::Id {
+            name = self.curr().value.clone();
+            self.kw_class.insert(name);
+
+            self.kind_upd(self.idx, Tk::Name);
+            self.consume(Tk::Name);
+        }
+
+        if self.curr().kind == Tk::L3 {
+            self.consume(Tk::L3);
+        }
+
+        while !self.is_end() && self.curr().kind != Tk::L3 {
+            let kind = self.curr().kind;
+
+            match kind {
+                Tk::Tvar    => self.is_asg(),
+                Tk::Def     => self.is_def(),
+                Tk::Class   => self.is_class();
+
+                _  => break;
+            }
+        }
+
+        self.consume(Tk::L3);
+    } 
 
     pub fn is_asg(&mut self) {
-		self.consume(Tk::Tvar);
+        self.consume(Tk::Tvar);
 
-        self.kind_upd(self.idx, Tk::Var);
-        self.consume(Tk::Var);
+        let mut name = String::new();
+
+        if self.curr().kind == Tk::Id {
+            name = self.curr().value.clone();
+            self.kw_var.insert(name);
+            
+            self.kind_upd(self.idx, Tk::Name);
+            self.consume(Tk::Name);
+        }
 
         if self.curr().kind == Tk::Asg {
             self.consume(Tk::Asg);
         }
 
-        self.asg_check()
+        self.asg_check();
     }
 
     // *********************************************************************
@@ -141,31 +178,39 @@ impl Paser {
     // --- checker functions ---
     // *********************************************************************
     pub fn iden_check(&mut self) -> bool {
-        if self.is_end() { return false; }
-        let kind = self.peek().kind;
         let val = &self.curr().value;
 
+        self.consume(Tk::Id);
+        if self.is_end() { 
+            return false; 
+        }
+        
+        let kind = self.curr().kind;
+
         match kind {
-            Tk::L1 if self.ops.exec.contains_key(&val)      => {
+            Tk::L1 if self.ops.exec.contains_key(&val) => {
                 self.kind_upd(self.idx, Tk::Exec);
             },
-            Tk::Scop if self.kw_lib.contains(&val)          => {
+            Tk::Scop if self.kw_lib.contains(&val) => {
                 self.kind_upd(self.idx, Tk::Lib);
             },
-            Tk::Dot if self.kw_class.contains(&val)         => {
+            Tk::Dot if self.kw_class.contains(&val) => {
                 self.kind_upd(self.idx, Tk::Call);
             },
-            Tk::L1 if self.kw_def.contains(&val)            => {
+            Tk::L1 if self.kw_def.contains(&val) => {
                 self.kind_upd(self.idx, Tk::Call);
             },
-            Tk::Comma if self.kw_var.contains(&val)         => {
-                self.kind_upd(self.idx, Tk::Var);
+            Tk::Comma if self.kw_var.contains(&val) => {
+                self.kind_upd(self.idx, Tk::Name);
             },
 
             _ => false,
         }
-
         true
+    }
+
+    pub fn param_check(&mut self) {
+
     }
 
     pub fn data_check(&mut self) -> bool {
@@ -179,10 +224,13 @@ impl Paser {
                 self.consume(kind);
             }
             Tk::Number => {
-                self.consume(Tk::Number);
+                self.consume(kind);
+            }
+            Tk::Sub => {
+                self.consume(kind);
             }
             Tk::True | Tk::False => {
-                self.consume(kind)
+                self.consume(kind);
             }
             Tk::Id => {
                 if kw_lib.contains(val) {
@@ -215,10 +263,23 @@ impl Paser {
     }
 
     pub fn asg_check(&mut self) {
+        self.data_check();
 
+        while !self.is_end() && self.curr().kind != Tk::Semi {
+            let kind = self.curr().kind;
+            match kind {
+                Tk::Add | Tk::Sub | Tk::Mul | Tk::Div | Tk::Mod | Tk::Pow | Tk::IDiv => {
+                    self.consume(kind);
+                    self.data_check();
+                }
+                _ => break;
+            }
+        }
+        
+        self.consume(Tk::Semi);
     }
 
-    pub fn _checker(&mut self) {
+    pub fn check(&mut self) {
 
     }
 }

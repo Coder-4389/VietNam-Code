@@ -11,22 +11,21 @@ pub enum Tk {
     String   = 2, 
     True     = 3,
     False    = 4,
-    None     = 5
+    None     = 5,
 
     // --- Keywords (10 - 29) ---
     Block    = 10,                          // if, elif, else 
     Loop     = 11,                          // for, while 
-    Struct   = 12,                          // struct
-    Def      = 13,                          // def
-    Class    = 14,                          // class
-    Temp     = 15,                          // template
-    Lib      = 16, 
-    Pick     = 17, 
-    Call     = 18, 
-    Exec     = 19, 
-    Tvar     = 20,
-    Var      = 21,
-    Incl     = 22,
+    Def      = 12,                          // def
+    Class    = 13,                          // class
+    Temp     = 14,                          // template
+    Lib      = 15, 
+    Pick     = 16, 
+    Call     = 17, 
+    Exec     = 18, 
+    Tvar     = 19,
+    Name     = 20,
+    Incl     = 21,
 
     // --- Symbols Single (30 - 69) ---
     L4       = 30, R4 = 31,                 // < > 
@@ -56,7 +55,7 @@ pub enum Tk {
     And      = 74, Or  = 75,                // && || 
     Inc      = 76, Dec = 77,                // ++ -- 
     Pow      = 78,                          // ** 
-    FloDiv   = 79,                          // // 
+    IDiv   = 79,                          // // 
     LShf     = 80, RShf = 81,               // << >> 
     Scop     = 82,                          // :: 
     ArwL     = 83, ArwR = 84,               // <- -> 
@@ -116,6 +115,9 @@ impl Lexer {
 
     pub fn token_tag(&mut self, tok: &str) -> Tk {
         match tok {
+            "true"                  => Tk::True,
+            "false"                 => Tk::False,
+            "none"                  => Tk::None,
             // --- Keywords ---
             "if"                    => Tk::Block,
             "elif"                  => Tk::Block,
@@ -149,7 +151,7 @@ impl Lexer {
             "<=" => Tk::Lte,       ">=" => Tk::Gte,
             "&&" => Tk::And,       "||" => Tk::Or,
             "++" => Tk::Inc,       "--" => Tk::Dec,
-            "**" => Tk::Pow,       "//" => Tk::FloDiv,
+            "**" => Tk::Pow,       "//" => Tk::IDiv,
             "<<" => Tk::LShf,      ">>" => Tk::RShf,
             "::" => Tk::Scop,   
             "<-" => Tk::ArwL,      "->" => Tk::ArwR,
