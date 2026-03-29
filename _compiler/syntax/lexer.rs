@@ -19,13 +19,14 @@ pub enum Tk {
     Def      = 12,                          // def
     Class    = 13,                          // class
     Temp     = 14,                          // template
-    Lib      = 15, 
-    Pick     = 16, 
-    Call     = 17, 
-    Exec     = 18, 
-    Tvar     = 19,
-    Name     = 20,
-    Incl     = 21,
+    Struct   = 15,
+    Lib      = 16, 
+    Pick     = 17, 
+    Call     = 18, 
+    Exec     = 19, 
+    Tvar     = 20,
+    Name     = 21,
+    Incl     = 22,
 
     // --- Symbols Single (30 - 69) ---
     L4       = 30, R4 = 31,                 // < > 
@@ -55,7 +56,7 @@ pub enum Tk {
     And      = 74, Or  = 75,                // && || 
     Inc      = 76, Dec = 77,                // ++ -- 
     Pow      = 78,                          // ** 
-    IDiv   = 79,                          // // 
+    IDiv     = 79,                          // // 
     LShf     = 80, RShf = 81,               // << >> 
     Scop     = 82,                          // :: 
     ArwL     = 83, ArwR = 84,               // <- -> 
@@ -74,7 +75,7 @@ pub enum Tk {
 pub struct Token {
     kind    :   u8,
     value   :   String,
-    pos     :   usize,
+    pos     :   Position,
 }
 
 pub struct Lexer {
@@ -102,7 +103,7 @@ impl Lexer {
 
     // ----- helper functions -----
     fn curr(&self) -> char {
-        let offset = self.pos.idx;
+        let offset = self.pos.clone().idx;
         if offset < self.chars.len() {self.chars[offset]} 
         else {return '\0';}
     }
@@ -175,190 +176,206 @@ impl Lexer {
         }
     }
 
-    pub fn check_syms(&mut self, idx: usize) -> bool {
-        let char1 = self.chars[idx];
+    pub fn is_sym(&mut self) {
+        let c1 = self.curr();
+        if c1 == '\0' { return; }
 
-        if idx + 1 < self.chars.len() {
-            let char2 = self.chars[idx + 1];
-            let mut dou_sym = String::with_capacity(2);
-            dou_sym.push(char1);
-            dou_sym.push(char2);
-            if sym_d().contains(&dou_sym.as_str()) {
-                self.raw_toks.push(dou_sym);
-                self.pos.upd(char1);
-                self.pos.upd(char2);
-                return true;
+        let sym_pos = self.pos.clone();
+
+        if let Some(&c2) = self.chars.get(self.pos.idx + 1) {
+            if sym_d().contains(&(c1, c2)) { 
+                let mut content = String::with_capacity(2);
+                content.push(c1);
+                content.push(c2);
+
+                self.tok_push(&content, sym_pos);
+                self.pos.upd(c1);
+                self.pos.upd(c2);
+                return;
             }
         }
 
-        if idx < self.chars.len() {
-            let single_sym = char1.to_string();
-            if sym_s().contains(&single_sym.as_str()) {
-                self.raw_toks.push(single_sym);
-                self.pos.upd(char1);
-                return true;
-            }
+        let c1_str = c1.to_string(); 
+        if sym_s().contains(&c1_str.as_str()) {
+            self.tok_push(&c1_str, sym_pos);
+            self.pos.upd(c1);
+            return;
         }
 
-        return false;
+        self.pos.upd(c1);
     }
 
-    pub fn keyword(&mut self, mut idx: usize) -> bool {
+    pub fn make_ident(&mut self) {
         let mut keyword = String::new();
 
-        while idx < self.chars.len() {
-            let char1 = self.chars[idx];
+        let keyw_pos = self.pos.clone();
 
-            if char1.is_alphanumeric() || char1 == '_' {
-                keyword.push(char1);
-                self.pos.upd(char1);
-                idx += 1;
-            } else {break;}
+        while self.pos.idx < self.chars.len() {
+            let c = self.curr();
+            if c.is_alphanumeric() || c == '_' {
+                keyword.push(c);
+                self.pos.upd(c); 
+                continue;
+            } break;
         }
 
         if !keyword.is_empty() {
-            self.raw_toks.push(keyword);
-            return true;
+            self.tok_push(&keyword, keyw_pos);
         }
-
-        false
     }
 
-    pub fn make_str(&mut self, mut idx: usize, quo: char) {
-        let mut string = String::new();
-        
-        self.raw_toks.push(quo.to_string());
-        self.pos.upd(quo); idx += 1;
-
-        while idx < self.chars.len() {
-            let char1 = self.chars[idx];
-            if char1 == quo {break;}
-            string.push(char1);
-            self.pos.upd(char1);
-            idx += 1;
-        }
-
-        self.raw_toks.push(string);
-        self.raw_toks.push(quo.to_string());
+    pub fn make_str(&mut self, quo: char) {
+        let quo_pos = self.pos.clone();
+        let _quo = quo.to_string();
+        self.tok_push(&_quo, quo_pos);
         self.pos.upd(quo);
+
+        let str_pos = self.pos.clone();
+        let mut string = String::new();
+
+        while self.pos.idx < self.chars.len() {
+            let c = self.curr();
+            if c == quo { 
+                break; 
+            }
+            string.push(c);
+            self.pos.upd(c);
+        } self.tok_push(&string, str_pos);
+
+        if self.pos.idx < self.chars.len() && self.curr() == quo {
+            let quo_pos = self.pos.clone();
+            let _quo = quo.to_string();
+            self.tok_push(&_quo, quo_pos);
+            self.pos.upd(quo);
+        }
     }
 
     pub fn make_num(&mut self) {
         let mut num = String::new();
-        
-        if self.peek(0) != '0' || !self.peek(1).is_alphabetic() {
+
+        let num_pos = self.pos.clone();
+
+        let c1 = self.peek(0);
+        let c2 = self.peek(1);
+
+        if c1 == '0' && ['x','o','q','b'].contains(&c2) {
+            num.push(c1);
+            self.pos.upd(c1);
+            num.push(c2);
+            self.pos.upd(c2);
+            match c2  {
+                'x'     => self.hex(&mut num),
+                'o'     => self.oct(&mut num),
+                'q'     => self.qua(&mut num),
+                'b'     => self.bin(&mut num),
+                _       => unreachable!(),
+            }
+        } else {
             self.dec(&mut num);
-            if !num.is_empty() {self.raw_toks.push(num);}
-            return;
         }
 
-        let prefix = self.peek(1).to_ascii_lowercase();
-        
-        if !['x', 'o', 'q', 'b'].contains(&prefix) {
-            self.dec(&mut num);
-            if !num.is_empty() {self.raw_toks.push(num);}
-            return;
+        if !num.is_empty() {
+            self.tok_push(&num, num_pos);
         }
-
-        num.push(self.curr()); self.pos.upd(self.curr());
-        num.push(self.curr()); self.pos.upd(self.curr());
-
-        while self.pos.idx < self.chars.len() {
-            let c = self.curr();
-            let is_valid = match prefix {
-                'x' => c.is_ascii_hexdigit(),
-                'o' => ('0'..='7').contains(&c),
-                'q' => ('0'..='3').contains(&c),
-                'b' => ('0'..='1').contains(&c),
-                _ => false,
-            };
-            
-            if !is_valid { break; }
-            num.push(c);
-            self.pos.upd(c);
-        }
-
-        if !num.is_empty() {self.raw_toks.push(num);}
     }
 
-    fn dec(&mut self, s: &mut String) {
+    pub fn hex(&mut self, num: &mut String) {
+        while let Some(&c) = self.chars.get(self.pos.idx) {
+            if c.is_ascii_hexdigit() {
+                num.push(c);
+                self.pos.upd(c);
+            } else {
+                break;
+            }
+        }
+    }
+    
+    pub fn dec(&mut self, num: &mut String) {
         let mut is_float = false;
 
-        while self.pos.idx < self.chars.len() {
-            let c = self.curr();
-
+        while let Some(&c) = self.chars.get(self.pos.idx) {
             if c.is_ascii_digit() {
-                s.push(c);
-                self.pos.upd(c);
-            } else if c == '.' && !is_float {
-                if self.peek(1) == '.' {break;}
-
+                num.push(c);
+            } else if c == '.' && !is_float && self.peek(1) != '.' {
                 is_float = true;
-                s.push(c);
+                num.push(c);
+            } else {
+                break;
+            } self.pos.upd(c);
+        }
+    }
+    
+    pub fn oct(&mut self, num: &mut String) {
+        while let Some(&c) = self.chars.get(self.pos.idx) {
+            if ('0'..='7').contains(&c) {
+                num.push(c);
                 self.pos.upd(c);
-            } else {break;}
+            } else {
+                break;
+            }
         }
     }
 
-    pub fn raw_tokens(&mut self) {
-        self.chars = self.source.chars().collect();
-
-        let mut idx = 0;
-
-        while idx < self.chars.len() {
-            idx = self.pos.idx;
-            //-println!("[{}]|[{}]", idx, self.chars.len());
-            if idx >= self.chars.len() {break;}
-            let _char = self.chars[idx];
-
-            if _char.is_whitespace() && _char != '\n' {
-                self.pos.upd(_char);
-                continue;
+    pub fn qua(&mut self, num: &mut String) {
+        while let Some(&c) = self.chars.get(self.pos.idx) {
+            if ('0'..='3').contains(&c) {
+                num.push(c);
+                self.pos.upd(c);
+            } else {
+                break;
             }
-
-            if _char == '\n' {
-                self.raw_toks.push("\\n".to_string());
-                self.pos.upd(_char);continue;
-            }
-
-            if _char.is_ascii_digit() {self.make_num();continue;}
-
-            if _char == '\"' || _char == '\'' {self.make_str(idx, _char); continue;}
-
-            if self.check_syms(idx) {continue;}
-
-            if self.keyword(idx) {continue;}
-
-            self.pos.upd(_char);
         }
+    }
 
-			// for tok in self.raw_toks.clone() {
-			//     if tok == "\\n" {
-			//         println!();
-			//         continue;
-			//     }
-			//     print!(" {} ", tok);
-			// }
+    pub fn bin(&mut self, num: &mut String) {
+        while let Some(&c) = self.chars.get(self.pos.idx) {
+            if ('0'..='1').contains(&c) {
+                num.push(c);
+                self.pos.upd(c);
+            } else {
+                break;
+            }
+        }
+    }
+
+    pub fn tok_push(&mut self, val: &str, _pos: Position) {
+        let tag = self.token_tag(val); 
+        self.tokens.push(Token{
+            kind: tag as u8,
+            value: val.to_string(),
+            pos: _pos
+        });
     }
 
     pub fn make_token(&mut self) {
-        self.raw_tokens();
+        while self.pos.idx < self.chars.len() {
+            let c = self.curr();
 
-        let raw_tokens = std::mem::take(&mut self.raw_toks);
+            match c {
+                _ if c.is_whitespace() => {
+                    self.pos.upd(c);
+                }
 
-        for tok in raw_tokens {
-            let tag = self.token_tag(&tok); 
-            
-            let token = Token {
-                kind    : tag as u8,
-                value   : tok, 
-                pos     : self.pos.idx,
-            };
-            self.tokens.push(token);
+                _ if c.is_ascii_digit() => {
+                    self.make_num();
+                }
 
-            // for token in &self.tokens {
-            //     println!("{:?}", token);
-            // }
+                _ if c.is_alphabetic() || c == '_' => {
+                    self.make_ident();
+                }
+
+                '"' | '\'' => {
+                    self.make_str(c);
+                }
+
+                _ => {
+                    self.is_sym();
+                }
+            }
+        }
+        
+        for token in &self.tokens {
+            println!("{:?}", token);
         }
     }
 }

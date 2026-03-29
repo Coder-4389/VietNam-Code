@@ -6,6 +6,8 @@ pub struct Paser {
     pub tokens  :   Vec<Token>,
     pub idx     :   usize,
 
+    pub kw_struct : HashSet<String>,
+    pub kw_temp   : HashSet<String>,
     pub kw_def    : HashSet<String>,
     pub kw_class  : HashSet<String>,
     pub kw_var    : HashSet<String>,
@@ -18,16 +20,12 @@ impl Paser {
     pub fn peek(&self) -> &Token {&self.tokens[self.idx + 1]}
     pub fn curr(&self) -> &Token {&self.tokens[self.idx]}
     pub fn is_end(&self) -> bool {self.idx >= self.tokens.len()}
-    pub fn adv(&mut self) -> &Token {
-        if !self.is_end() {self.idx += 1;}
-        &self.tokens[self.idx - 1]
-    }
 
     pub fn consume(&mut self, kind: TokType) -> bool {
         if !self.is_end() && self.curr().kind == kind {
-            self.adv(); 
-            return true; 
-        } return false; 
+            self.idx += 1;
+            true 
+        } false 
     }
 
     pub fn kind_upd(&mut self, idx: usize, _kind: Tk) {
@@ -39,6 +37,8 @@ impl Paser {
             tokens  :   tokens,
             idx     :   0,
 
+            kw_struct :   HashSet::new(),
+            kw_temp   :   HashSet::new(),
             kw_def    :   HashSet::new(),
             kw_class  :   HashSet::new(),
             kw_var    :   HashSet::new(),
@@ -69,6 +69,42 @@ impl Paser {
             return;
         } 
         self.consume(Tk::DQuote);
+    }
+
+    pub fn is_temp(&mut self) {
+        self.consume(Tk::Temp);
+
+        let mut name = String::new();
+
+        if self.curr().kind == Tk::Id {
+            name = self.curr().value;
+            self.kw_temp.insert(name);
+
+            self.kind_upd(self.idx, Tk::Name);
+            self.consume(Tk::Name);
+        }
+
+        if self.curr().kind == Tk::L4 {
+            self.consume(Tk::L4)
+        }
+
+        while !self.is_end() {
+            let kind = self.curr().kind;
+
+            match kind {
+                Tk::Tvar => {
+                    self.consume(kind);
+                    if self.curr().kind == Tk::Comma {
+                        self.consume(Tk::Comma);
+                    }
+                }
+                Tk::R4 => {
+                    break;
+                }
+
+                _ => info("the template at line {} don't have ")
+            } 
+        }  
     }
 
     pub fn is_def(&mut self) {
@@ -279,7 +315,7 @@ impl Paser {
         self.consume(Tk::Semi);
     }
 
-    pub fn check(&mut self) {
+    pub fn analyzer(&mut self) {
 
     }
 }

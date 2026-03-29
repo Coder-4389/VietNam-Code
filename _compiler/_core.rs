@@ -4,6 +4,7 @@ use std::io::{self, Write};
 use std::ffi::c_char;
 use std::env;
 use std::path::Path;
+use std::ffi::CString;
 
 pub mod untils;
 pub mod opcode;
@@ -27,15 +28,18 @@ impl Core {
     }
 
     fn load_cdx(&mut self) {
-        match fs::read_to_string(&self.path) {
+        let msg = match fs::read_to_string(&self.path) {
             Ok(source) => {
                 self.source = source;
-                show("Successfully read file.");
-            } Err(e) => {
-                show("Failed to read file.");
-                let info = &format!("Error: {}", e);
-                show(info);
+                CString::new("Successfully read file.").unwrap()
+            } 
+            Err(_) => {
+                CString::new("Failed to open the file").unwrap()
             }
+        };
+
+        unsafe {
+            info(msg.as_ptr());
         }
     }
 

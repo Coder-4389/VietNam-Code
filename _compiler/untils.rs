@@ -3,26 +3,36 @@ use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
 
 // --- defs --- //
+pub fn sym_d() -> &'static [(char, char)] {
+    &[
+        ('|', '|'), ('&', '&'),
+        ('+', '+'), ('-', '-'), ('*', '*'), ('/', '/'), ('<', '<'), ('>', '>'),
+        (':', ':'), ('<', '-'), ('-', '>'),
+        ('=', '='), ('!', '='), ('<', '='), ('>', '='),
+        ('+', '='), ('-', '='), ('*', '='), ('/', '='), ('%', '='), ('^', '='), ('&', '='), ('|', '=')
+    ]
+}
+
 pub fn sym_s() -> &'static [&'static str] {
     &[
-        "\'","\"","\n","\t",
         "{","}","[","]","(",")","<",">",
         "!","@","#","$","&","|",":",";",",",".","?",
         "*","-","+","=","%","^","/"
     ]
 }
 
-pub fn sym_d() -> &'static [&'static str] {
-    &[
-        "||","&&",
-        "++","--","**","//","<<",">>",
-        "::","<-","->",
-        "==","!=","<=",">=",
-        "+=","-=","*=","/=","%=","^=","&=","|="
-    ]
-}
+// pub fn sym_d() -> &'static [&'static str] {
+//     &[
+//         "||","&&",
+//         "++","--","**","//","<<",">>",
+//         "::","<-","->",
+//         "==","!=","<=",">=",
+//         "+=","-=","*=","/=","%=","^=","&=","|="
+//     ]
+// }
 
 // --- position --- //
+#[derive(Debug, Clone, Copy)]
 pub struct Position {
     pub ln  :   usize,
     pub col :   usize,
@@ -48,14 +58,10 @@ impl Position {
     }
 }
 
-// --- info --- //
+// --- info ---
 #[repr(C)]
-pub struct Info {pub msg: *mut c_char,}
-
-pub fn show(text: &str) {
-    let c_msg = CString::new(text).expect("CString failed");
-    let info = info(c_msg.as_ptr());
-    free(info);
+pub struct Info {
+    pub msg: *mut c_char,
 }
 
 #[unsafe(no_mangle)]
@@ -65,16 +71,20 @@ pub extern "C" fn info(msg_ptr: *const c_char) -> Info {
     }
 
     let c_str = unsafe { CStr::from_ptr(msg_ptr) };
-    let msg_content = c_str.to_str().unwrap_or("Error: Invalid UTF-8");
-    
-    let display_msg = format!("VNS Log: {}", msg_content);
 
-    Info {msg: CString::new(display_msg).expect("CString failed").into_raw(),}
+    let msg = c_str.to_str().unwrap_or("Error: Invalid UTF-8");
+
+    match CString::new(msg) {
+        Ok(c_string) => Info { msg: c_string.into_raw() },
+        Err(_) => Info { msg: std::ptr::null_mut() },
+    }
 }
 
 #[unsafe(no_mangle)]
-pub extern "C" fn free(info: Info) {
-    unsafe {if !info.msg.is_null() {
+pub extern "C" fn vns_free_info(info: Info) {
+    if !info.msg.is_null() {
+        unsafe {
             let _ = CString::from_raw(info.msg);
-    }}
+        }
+    }
 }
