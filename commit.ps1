@@ -15,7 +15,7 @@ Write-Host "--- Syncing with GitHub (Pull) ---" -ForegroundColor Cyan
 git pull origin main --rebase 2>&1
 
 Write-Host "--- Push the project to GitHub ---" -ForegroundColor Cyan
-git push origin main 2>&1
+git push origin main --quiet 2>&1
 
 if ($LASTEXITCODE -eq 0) {
     Write-Host "`n==========================================" -ForegroundColor Green
