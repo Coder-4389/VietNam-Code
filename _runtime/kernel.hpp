@@ -1,4 +1,4 @@
-#ifndef Kernel_Hpp
+#ifdef Kernel_Hpp
 #define Kernel_Hpp
 
 // ****************************************

@@ -1,4 +1,4 @@
-#ifndef Global_Hpp
+#ifdef Global_Hpp
 #define Global_Hpp
 
 // ****************************************

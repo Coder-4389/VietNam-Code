@@ -43,23 +43,27 @@ impl Core {
         }
     }
 
+    fn parser(&mut self, code: Vec<String>) {
+
+    }
+
     fn run(&mut self) {
         self.load_cdx();
     }
 }
 
 fn main() {
-    let mut _core = Core::new(String::new());
-    let mut lexer = Lexer::new(_core.source.clone());
-	
-	let args: Vec<String> = env::args().collect();
-	
-	if args[0] != "vnc" {return;}
-	if args[1] != "run" {return;}
-	if args.len() < 3 {return;}
-	
-	_core.path = args[2].clone();
-    _core.run();
-	
-    lexer.make_token();
+    let args: Vec<String> = env::args().collect();
+    
+    if args.len() < 3 { 
+        return; 
+    } 
+
+    if args[1] == "run" {
+        let mut _core = Core::new(args[2].clone());
+        _core.run(); 
+    
+        let mut lexer = Lexer::new(_core.source.clone());
+        lexer.make_token();
+    }
 }

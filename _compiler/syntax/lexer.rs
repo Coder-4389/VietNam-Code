@@ -82,7 +82,6 @@ pub struct Lexer {
     pub source  : String,
     pub chars   : Vec<char>,
     pub tokens  : Vec<Token>,
-    pub raw_toks: Vec<String>,
 
     pos     : Position,
     ops     : Opcodes,
@@ -94,7 +93,6 @@ impl Lexer {
             source  : source,
             chars   : Vec::new(),
             tokens  : Vec::new(),
-            raw_toks: Vec::new(),
 
             pos     : Position::new(),
             ops     : Opcodes::new(),
@@ -348,32 +346,41 @@ impl Lexer {
     }
 
     pub fn make_token(&mut self) {
+        // Debug: Kiểm tra xem có chữ nào để đọc không
+        if self.chars.is_empty() {
+            println!("file is empty");
+            return;
+        }
+
         while self.pos.idx < self.chars.len() {
             let c = self.curr();
+            let be_idx = self.pos.idx;
 
             match c {
                 _ if c.is_whitespace() => {
-                    self.pos.upd(c);
+                    self.pos.upd(c); 
                 }
-
                 _ if c.is_ascii_digit() => {
                     self.make_num();
                 }
-
                 _ if c.is_alphabetic() || c == '_' => {
                     self.make_ident();
                 }
-
                 '"' | '\'' => {
                     self.make_str(c);
                 }
-
                 _ => {
                     self.is_sym();
                 }
             }
+
+            if self.pos.idx == be_idx {
+                self.pos.upd(c); 
+            }
         }
         
+        // In kết quả sau khi quét xong
+        println!("--- Token list ({}) ---", self.tokens.len());
         for token in &self.tokens {
             println!("{:?}", token);
         }

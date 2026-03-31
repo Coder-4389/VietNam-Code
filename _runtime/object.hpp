@@ -1,4 +1,4 @@
-#ifndef Object_Hpp
+#ifdef Object_Hpp
 #define Object_Hpp
 
 // ****************************************
