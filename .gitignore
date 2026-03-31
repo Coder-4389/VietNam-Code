@@ -11,4 +11,4 @@ _script/__pycache__/
 
 .git/
 .gitignore
-commit.ps1
+commit.sh
