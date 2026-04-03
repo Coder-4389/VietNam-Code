@@ -28,19 +28,15 @@ impl Core {
     }
 
     fn load_cdx(&mut self) {
-        let msg = match fs::read_to_string(&self.path) {
+        match fs::read_to_string(&self.path) {
             Ok(source) => {
                 self.source = source;
-                CString::new("Successfully read file.").unwrap()
+                show!("Successfully read file.");
             } 
             Err(_) => {
-                CString::new("Failed to open the file").unwrap()
+                show!("Failed to open the file");
             }
         };
-
-        unsafe {
-            info(msg.as_ptr());
-        }
     }
 
     fn parser(&mut self, code: Vec<String>) {

@@ -64,13 +64,36 @@ pub struct Info {
     pub msg: *mut c_char,
 }
 
+#[macro_export]
+macro_rules! show {
+    ($fmt:expr) => {{
+        let msg_string = format!($fmt); 
+        let msg_c = std::ffi::CString::new(msg_string)
+            .expect("failed to convert to CString");
+        unsafe {
+            push_info(msg_c.as_ptr());
+        }
+    }};
+    
+    ($fmt:expr, $($arg:tt)*) => {{
+        let s = format!($fmt, $($arg)*);
+        if let Ok(c_str) = CString::new(s) {
+            unsafe { push_info(c_str.as_ptr()); }
+        }
+    }};
+}
+
 #[unsafe(no_mangle)]
-pub extern "C" fn info(msg_ptr: *const c_char) -> Info {
+pub extern "C" fn push_info(msg_ptr: *const c_char) -> Info {
     if msg_ptr.is_null() { 
-        return Info { msg: std::ptr::null_mut() }; 
+        return Info { 
+            msg: std::ptr::null_mut() 
+        }; 
     }
 
-    let c_str = unsafe { CStr::from_ptr(msg_ptr) };
+    let c_str = unsafe { 
+        CStr::from_ptr(msg_ptr) 
+    };
 
     let msg = c_str.to_str().unwrap_or("Error: Invalid UTF-8");
 
@@ -81,7 +104,7 @@ pub extern "C" fn info(msg_ptr: *const c_char) -> Info {
 }
 
 #[unsafe(no_mangle)]
-pub extern "C" fn vns_free_info(info: Info) {
+pub extern "C" fn free_info(info: Info) {
     if !info.msg.is_null() {
         unsafe {
             let _ = CString::from_raw(info.msg);

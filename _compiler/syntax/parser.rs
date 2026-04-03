@@ -102,7 +102,10 @@ impl Paser {
                     break;
                 }
 
-                _ => info("the template at line {} don't have ")
+                _ => {
+                    show!("the template at line {}", self.curr().pos.ln);
+                    break;
+                }
             } 
         }  
     }
@@ -132,7 +135,10 @@ impl Paser {
                 Tk::Comma => {
                     self.consume(Tk::Comma);
                 },
-                _ => break,
+                _ => {
+                    show!("have a error at line {}",self.curr().pos.ln);
+                    break;
+                }
             }
         } 
         
@@ -168,7 +174,10 @@ impl Paser {
                 Tk::Def     => self.is_def(),
                 Tk::Class   => self.is_class();
 
-                _  => break;
+                _  => {
+                    show!("have a error at line {}",self.curr().pos.ln);
+                    break;
+                }
             }
         }
 
@@ -199,7 +208,11 @@ impl Paser {
     // --- order functions ---
     // *********************************************************************
     pub fn is_lib(&mut self) {
-
+        if self.curr().kind == Tk::Id {
+            self.kind_upd(self.pos.idx, Tk::Lib);
+            self.consume(Tk::Lib);
+        }
+        
     }
     
     pub fn is_call(&mut self) {
@@ -226,27 +239,29 @@ impl Paser {
         match kind {
             Tk::L1 if self.ops.exec.contains_key(&val) => {
                 self.kind_upd(self.idx, Tk::Exec);
+                true
             },
             Tk::Scop if self.kw_lib.contains(&val) => {
                 self.kind_upd(self.idx, Tk::Lib);
+                true
             },
             Tk::Dot if self.kw_class.contains(&val) => {
                 self.kind_upd(self.idx, Tk::Call);
             },
             Tk::L1 if self.kw_def.contains(&val) => {
                 self.kind_upd(self.idx, Tk::Call);
+                true
             },
             Tk::Comma if self.kw_var.contains(&val) => {
                 self.kind_upd(self.idx, Tk::Name);
+                true
             },
 
-            _ => false,
+            _ => {
+                show!("have a error at line {}",self.curr().pos.ln);
+                false
+            },
         }
-        true
-    }
-
-    pub fn param_check(&mut self) {
-
     }
 
     pub fn data_check(&mut self) -> bool {
@@ -271,17 +286,13 @@ impl Paser {
             Tk::Id => {
                 if kw_lib.contains(val) {
                     self.is_lib();
-                }
-                else if kw_class.contains(val) {
+                } else if kw_class.contains(val) {
                     self.is_call();
-                }
-                else if kw_def.contains(val) {
+                } else if kw_def.contains(val) {
                     self.is_call();
-                }
-                else if kw_var.contains(val) {
+                } else if kw_var.contains(val) {
                     self.is_var();
-                }
-                else {
+                } else {
                     consume(kind)
                 }
             }
@@ -294,7 +305,10 @@ impl Paser {
                 self.consume(Tk::None)
             }
 
-            _ => false
+            _ => {
+                show!(have a error at line {}, self.curr().pos.ln);
+                false
+            }
         }
     }
 
@@ -308,7 +322,10 @@ impl Paser {
                     self.consume(kind);
                     self.data_check();
                 }
-                _ => break;
+                _ => {
+                    show!(have a error at line {}, self.curr().pos.ln);
+                    break;
+                }
             }
         }
         
